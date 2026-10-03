@@ -1,0 +1,185 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, type FormEvent } from "react";
+import { useFarar } from "@/components/app-provider";
+import { validateAvailability, WEEKDAYS } from "@/lib/availability";
+import { CITIES, PROFESSIONS } from "@/lib/demo-data";
+import type { MatchRequest, ProviderDraft } from "@/lib/types";
+
+const EMPTY_PROFILE: ProviderDraft = {
+  fullName: "",
+  profession: "",
+  city: "",
+  bio: "",
+  yearsExperience: 0,
+  travelsToClient: false,
+  availability: [],
+};
+
+function statusText(status: MatchRequest["status"]) {
+  if (status === "accepted") return "تقبل الطلب";
+  if (status === "declined") return "مرفوض";
+  return "كنستناو الجواب";
+}
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const { user, providers, requests, ready, saveProvider, updateRequestStatus } = useFarar();
+  const [profile, setProfile] = useState<ProviderDraft>(EMPTY_PROFILE);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [updatingRequest, setUpdatingRequest] = useState("");
+
+  useEffect(() => {
+    if (!ready) return;
+    if (!user) {
+      router.replace("/auth");
+      return;
+    }
+    const existing = providers.find((item) => item.id === user.id);
+    if (existing) {
+      setProfile({
+        fullName: existing.fullName,
+        profession: existing.profession,
+        city: existing.city,
+        bio: existing.bio,
+        yearsExperience: existing.yearsExperience,
+        travelsToClient: existing.travelsToClient,
+        availability: existing.availability ?? [],
+      });
+    } else {
+      setProfile({ ...EMPTY_PROFILE, fullName: user.name });
+    }
+  }, [ready, user, providers, router]);
+
+  if (!ready || !user) return <div className="page-container"><div className="loading-panel dashboard-loading"><span className="loading-spinner" /> كنوجدو لوحة الحساب...</div></div>;
+
+  const myRequests = requests.filter((request) => user.role === "provider" ? request.providerId === user.id : request.clientId === user.id);
+
+  async function handleProfileSave(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!profile.availability.length) {
+      setError("زيد على الأقل فترة وحدة ديال وقت الفراغ باش الزبناء يقدرو يلقاو المواعيد المناسبة.");
+      setMessage("");
+      return;
+    }
+    const scheduleError = validateAvailability(profile.availability);
+    if (scheduleError) {
+      setError(scheduleError);
+      setMessage("");
+      return;
+    }
+    setSaving(true);
+    setMessage("");
+    setError("");
+    try {
+      await saveProvider(profile);
+      setMessage("تحفظ الملف ديالك بنجاح. دابا يقدر يبان فنتائج البحث.");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "ما قدرناش نحفظو الملف.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleStatus(requestId: string, status: "accepted" | "declined") {
+    setUpdatingRequest(requestId);
+    setError("");
+    try {
+      await updateRequestStatus(requestId, status);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "ما قدرناش نحدّثو الطلب.");
+    } finally {
+      setUpdatingRequest("");
+    }
+  }
+
+  function addAvailability(weekday: number) {
+    setProfile((current) => ({
+      ...current,
+      availability: [...current.availability, { weekday, start: "09:00", end: "17:00" }],
+    }));
+  }
+
+  function updateAvailability(index: number, field: "start" | "end", value: string) {
+    setProfile((current) => ({
+      ...current,
+      availability: current.availability.map((slot, slotIndex) => slotIndex === index ? { ...slot, [field]: value } : slot),
+    }));
+  }
+
+  function removeAvailability(index: number) {
+    setProfile((current) => ({ ...current, availability: current.availability.filter((_, slotIndex) => slotIndex !== index) }));
+  }
+
+  return (
+    <section className="dashboard-page page-container">
+      <div className="dashboard-welcome">
+        <div><p className="eyebrow">لوحة الحساب</p><h1>مرحبا، {user.name}</h1><p>{user.role === "provider" ? "كمّل الملف ديالك باش الزبناء يلقاو الخدمة ديالك." : "تابع طلبات الخدمات اللي صيفطتي."}</p></div>
+        <Link className="button button-outline" href="/">رجوع للرئيسية <span aria-hidden="true">↗</span></Link>
+      </div>
+
+      {user.role === "provider" ? (
+        <div className="dashboard-grid">
+          <section className="dashboard-panel profile-panel">
+            <div className="panel-heading"><div><p className="eyebrow">الملف المهني</p><h2>عرّف الناس بخدمتك</h2></div><span className="panel-step">1 / 1</span></div>
+            <p className="panel-intro">المعلومات اللي هنا غادي تبان فملفك للناس اللي كيقلبو على خدمات فمدينتك.</p>
+            <form className="stacked-form profile-form" onSubmit={handleProfileSave}>
+              <div className="form-row"><div><label htmlFor="profile-name">الاسم الكامل</label><input id="profile-name" required minLength={2} value={profile.fullName} onChange={(event) => setProfile({ ...profile, fullName: event.target.value })} /></div><div><label htmlFor="profile-profession">المهنة أو نوع الخدمة</label><select id="profile-profession" required value={profile.profession} onChange={(event) => setProfile({ ...profile, profession: event.target.value })}><option value="">اختار المهنة</option>{PROFESSIONS.map((item) => <option key={item} value={item}>{item}</option>)}</select></div></div>
+              <div className="form-row"><div><label htmlFor="profile-city">المدينة</label><select id="profile-city" required value={profile.city} onChange={(event) => setProfile({ ...profile, city: event.target.value })}><option value="">اختار المدينة</option>{CITIES.map((item) => <option key={item} value={item}>{item}</option>)}</select></div><div><label htmlFor="profile-experience">سنين الخبرة</label><input id="profile-experience" type="number" min="0" max="60" value={profile.yearsExperience} onChange={(event) => setProfile({ ...profile, yearsExperience: Number(event.target.value) })} /></div></div>
+              <div><label htmlFor="profile-bio">نبذة على الخدمة</label><textarea id="profile-bio" required minLength={20} maxLength={500} rows={5} value={profile.bio} onChange={(event) => setProfile({ ...profile, bio: event.target.value })} placeholder="شرح شنو كتقدّم، كيفاش كتخدم، وأي تفاصيل تعاون الزبناء ياخذو فكرة..." /><small className="field-hint">{profile.bio.length} / 500 حرف</small></div>
+              <section className="availability-editor" aria-labelledby="availability-heading">
+                <div className="availability-editor-heading"><div><label id="availability-heading">أوقات الفراغ الأسبوعية</label><p>دخل الفترات اللي كتكون فيها متاح. تقدر تزيد أكثر من فترة فالنهار.</p></div><span className="schedule-required">مطلوب</span></div>
+                <div className="schedule-day-list">{WEEKDAYS.map((day) => {
+                  const slots = profile.availability.map((slot, index) => ({ slot, index })).filter(({ slot }) => slot.weekday === day.weekday);
+                  return (
+                    <div className="schedule-day-row" key={day.weekday}>
+                      <div className="schedule-day-name">{day.label}</div>
+                      <div className="schedule-slots">
+                        {slots.length ? slots.map(({ slot, index }) => (
+                          <div className="schedule-slot" key={`${day.weekday}-${index}`}>
+                            <input aria-label={`بداية التوفر يوم ${day.label}`} type="time" required value={slot.start} onChange={(event) => updateAvailability(index, "start", event.target.value)} />
+                            <span>حتى</span>
+                            <input aria-label={`نهاية التوفر يوم ${day.label}`} type="time" required value={slot.end} onChange={(event) => updateAvailability(index, "end", event.target.value)} />
+                            <button className="remove-slot" type="button" aria-label={`حذف الفترة يوم ${day.label}`} onClick={() => removeAvailability(index)}>×</button>
+                          </div>
+                        )) : <span className="no-day-hours">ما كاينش وقت محدد</span>}
+                        <button className="add-slot" type="button" onClick={() => addAvailability(day.weekday)}>+ زيد فترة</button>
+                      </div>
+                    </div>
+                  );
+                })}</div>
+                <small className="field-hint">مثال: الاثنين من 18:00 حتى 21:00. الموعد كيتحجز لمدة ساعة وكيحتاج تأكيد مقدّم الخدمة.</small>
+              </section>
+              <label className="checkbox-field"><input type="checkbox" checked={profile.travelsToClient} onChange={(event) => setProfile({ ...profile, travelsToClient: event.target.checked })} /><span className="custom-checkbox">✓</span><span>نقدر نمشي عند الزبون فمدينتي</span></label>
+              {error ? <p className="form-error" role="alert">{error}</p> : null}
+              {message ? <p className="form-notice" role="status">{message}</p> : null}
+              <button className="button button-primary" type="submit" disabled={saving}>{saving ? "كنحفظو..." : "حفظ الملف"}<span aria-hidden="true">←</span></button>
+            </form>
+          </section>
+          <aside className="dashboard-side">
+            <div className="dashboard-tip"><span className="tip-icon">✳</span><p className="eyebrow">نصيحة صغيرة</p><h3>النبذة الواضحة كتعاون الزبون يختارك</h3><p>ذكر الخدمات اللي كتقدّم، المدن أو الأحياء اللي كتخدم فيهم، والمدة اللي عندك فالخدمة.</p></div>
+            <div className="dashboard-summary"><span className="summary-icon">▣</span><div><strong>{profile.profession && profile.city ? "ملفك واجد للظهور" : "كمّل معلومات الملف"}</strong><p>{profile.profession && profile.city ? "يقدر يبان فنتائج البحث." : "اختار المهنة والمدينة باش يبان الملف."}</p></div></div>
+          </aside>
+        </div>
+      ) : (
+        <div className="client-note"><span className="client-note-icon">⌕</span><div><h2>قلب على الخدمة اللي محتاج</h2><p>اختار مقدّم خدمة وصيفط طلب، وغادي تلقى الحالة ديالو هنا.</p></div><Link className="button button-primary" href="/#providers">قلب على خدمة <span aria-hidden="true">←</span></Link></div>
+      )}
+
+      <section className="requests-panel">
+        <div className="panel-heading"><div><p className="eyebrow">تواصل وطلبات</p><h2>{user.role === "provider" ? "الطلبات اللي وصلوك" : "الطلبات ديالك"}</h2></div><span className="request-count">{myRequests.length} طلب</span></div>
+        {error && user.role === "provider" ? <p className="form-error" role="alert">{error}</p> : null}
+        {myRequests.length ? <div className="request-list">{myRequests.map((request) => (
+          <article className="request-row" key={request.id}>
+            <div className="request-row-icon" aria-hidden="true">{user.role === "provider" ? request.clientName.slice(0, 1) : request.providerName.slice(0, 1)}</div>
+            <div className="request-main"><div className="request-title-row"><h3>{user.role === "provider" ? request.clientName : request.providerName}</h3><span className={`status-pill status-${request.status}`}>{statusText(request.status)}</span></div><p>{request.message}</p><span className="request-date">موعد الخدمة: {request.preferredDate} مع {request.preferredTime.slice(0, 5)}</span></div>
+            {user.role === "provider" && request.status === "pending" ? <div className="request-actions"><button className="button button-outline" type="button" disabled={updatingRequest === request.id} onClick={() => handleStatus(request.id, "declined")}>اعتذار</button><button className="button button-primary" type="button" disabled={updatingRequest === request.id} onClick={() => handleStatus(request.id, "accepted")}>قبول</button></div> : null}
+          </article>
+        ))}</div> : <div className="empty-request"><span aria-hidden="true">✦</span><p>ما كاين حتى طلب دابا. ملي يكون شي تحديث، غادي يبان هنا.</p></div>}
+      </section>
+    </section>
+  );
+}
