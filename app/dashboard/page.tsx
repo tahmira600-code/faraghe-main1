@@ -32,7 +32,9 @@ export default function DashboardPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [updatingRequest, setUpdatingRequest] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
+
+  // التحقق المباشر من إيميل المشرف الخاص بك
+  const isAdmin = user?.email === "Tahmira600@gmail.com";
 
   useEffect(() => {
     if (!ready) return;
@@ -40,27 +42,6 @@ export default function DashboardPage() {
       router.replace("/auth");
       return;
     }
-    
-    // التحقق من صلاحية المشرف (Admin)
-    async function checkAdminStatus() {
-      try {
-        const { createClientComponentClient } = await import("@supabase/auth-helpers-nextjs");
-        const supabase = createClientComponentClient();
-        const { data } = await supabase
-          .from("service_profiles")
-          .select("is_admin")
-          .eq("id", user.id)
-          .single();
-        
-        if (data && data.is_admin) {
-          setIsAdmin(true);
-        }
-      } catch (err) {
-        console.error("Error checking admin status:", err);
-      }
-    }
-    checkAdminStatus();
-
     const existing = providers.find((item) => item.id === user.id);
     if (existing) {
       setProfile({
@@ -148,14 +129,14 @@ export default function DashboardPage() {
         <Link className="button button-outline" href="/">رجوع للرئيسية <span aria-hidden="true">↗</span></Link>
       </div>
 
-      {/* قسم الآدمن الخاص يظهر فقط إذا كان المستخدم مشرفاً */}
+      {/* لوحة تحكم المشرف (تظهر فوراً لأن الإيميل مطابق) */}
       {isAdmin && (
-        <div className="admin-badge-box" style={{ background: "#1e293b", color: "#fff", padding: "20px", borderRadius: "12px", marginBottom: "24px", border: "2px solid #3b82f6" }}>
+        <div style={{ background: "#1e293b", color: "#fff", padding: "20px", borderRadius: "12px", marginBottom: "24px", border: "2px solid #3b82f6" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <span style={{ background: "#3b82f6", padding: "4px 8px", borderRadius: "4px", fontSize: "12px", fontWeight: "bold" }}>مشرف النظام (Admin)</span>
-              <h2 style={{ margin: "8px 0 4px", fontSize: "20px" }}>لوحة تحكم المشرف</h2>
-              <p style={{ margin: 0, color: "#cbd5e1" }}>أنت مسجل حالياً بصلاحيات كاملة للتحكم في المنصة.</p>
+              <span style={{ background: "#3b82f6", padding: "4px 8px", borderRadius: "4px", fontSize: "12px", fontWeight: "bold" }}>مشرف المنصة (Admin)</span>
+              <h2 style={{ margin: "8px 0 4px", fontSize: "20px" }}>لوحة تحكم Faraghe</h2>
+              <p style={{ margin: 0, color: "#cbd5e1" }}>مرحباً بك مجدداً، لديك صلاحيات كاملة كمشرف على النظام.</p>
             </div>
             <div style={{ fontSize: "28px" }}>⚡</div>
           </div>
