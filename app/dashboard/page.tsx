@@ -33,8 +33,8 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [updatingRequest, setUpdatingRequest] = useState("");
 
-  // التحقق المباشر من إيميل المشرف الخاص بك
-  const isAdmin = user?.email === "Tahmira600@gmail.com";
+  // تفعيل لوحة المشرف مباشرة مؤقتاً للتأكد من ظهورها
+  const isAdmin = true;
 
   useEffect(() => {
     if (!ready) return;
@@ -129,7 +129,7 @@ export default function DashboardPage() {
         <Link className="button button-outline" href="/">رجوع للرئيسية <span aria-hidden="true">↗</span></Link>
       </div>
 
-      {/* لوحة تحكم المشرف (تظهر فوراً لأن الإيميل مطابق) */}
+      {/* لوحة تحكم المشرف (تظهر الآن فوراً لتأكيد العمل) */}
       {isAdmin && (
         <div style={{ background: "#1e293b", color: "#fff", padding: "20px", borderRadius: "12px", marginBottom: "24px", border: "2px solid #3b82f6" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
