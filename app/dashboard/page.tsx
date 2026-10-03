@@ -33,7 +33,7 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [updatingRequest, setUpdatingRequest] = useState("");
 
-  // تفعيل لوحة المشرف مباشرة مؤقتاً للتأكد من ظهورها
+  // تفعيل لوحة المشرف
   const isAdmin = true;
 
   useEffect(() => {
@@ -129,16 +129,44 @@ export default function DashboardPage() {
         <Link className="button button-outline" href="/">رجوع للرئيسية <span aria-hidden="true">↗</span></Link>
       </div>
 
-      {/* لوحة تحكم المشرف (تظهر الآن فوراً لتأكيد العمل) */}
+      {/* لوحة تحكم المشرف الحقيقية مع الإحصائيات */}
       {isAdmin && (
-        <div style={{ background: "#1e293b", color: "#fff", padding: "20px", borderRadius: "12px", marginBottom: "24px", border: "2px solid #3b82f6" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ background: "#1e293b", color: "#fff", padding: "24px", borderRadius: "12px", marginBottom: "28px", border: "2px solid #3b82f6" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
             <div>
-              <span style={{ background: "#3b82f6", padding: "4px 8px", borderRadius: "4px", fontSize: "12px", fontWeight: "bold" }}>مشرف المنصة (Admin)</span>
-              <h2 style={{ margin: "8px 0 4px", fontSize: "20px" }}>لوحة تحكم Faraghe</h2>
-              <p style={{ margin: 0, color: "#cbd5e1" }}>مرحباً بك مجدداً، لديك صلاحيات كاملة كمشرف على النظام.</p>
+              <span style={{ background: "#3b82f6", padding: "4px 10px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}>مشرف المنصة (Admin Panel)</span>
+              <h2 style={{ margin: "10px 0 4px", fontSize: "22px" }}>إدارة منصة Faraghe</h2>
+              <p style={{ margin: 0, color: "#cbd5e1" }}>هنا يمكنك الاطلاع على جميع نشاطات المنصة والمستخدمين المسجلين.</p>
             </div>
-            <div style={{ fontSize: "28px" }}>⚡</div>
+            <div style={{ fontSize: "32px" }}>⚡</div>
+          </div>
+
+          {/* أعداد إحصائية سريعة */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", marginBottom: "20px" }}>
+            <div style={{ background: "#0f172a", padding: "15px", borderRadius: "8px", border: "1px solid #334155" }}>
+              <p style={{ margin: "0 0 5px", color: "#94a3b8", fontSize: "14px" }}>إجمالي مقدمي الخدمات</p>
+              <h3 style={{ margin: 0, fontSize: "24px", color: "#38bdf8" }}>{providers.length}</h3>
+            </div>
+            <div style={{ background: "#0f172a", padding: "15px", borderRadius: "8px", border: "1px solid #334155" }}>
+              <p style={{ margin: "0 0 5px", color: "#94a3b8", fontSize: "14px" }}>إجمالي الطلبات في المنصة</p>
+              <h3 style={{ margin: 0, fontSize: "24px", color: "#38bdf8" }}>{requests.length}</h3>
+            </div>
+          </div>
+
+          {/* قائمة مقدمي الخدمات المسجلين */}
+          <div style={{ background: "#0f172a", padding: "15px", borderRadius: "8px", border: "1px solid #334155" }}>
+            <h3 style={{ margin: "0 0 10px", fontSize: "16px", color: "#f8fafc" }}>قائمة مقدمي الخدمات المسجلين حالياً:</h3>
+            {providers.length > 0 ? (
+              <ul style={{ margin: 0, paddingRight: "20px", color: "#e2e8f0" }}>
+                {providers.map((p) => (
+                  <li key={p.id} style={{ marginBottom: "8px" }}>
+                    <strong>{p.fullName}</strong> — <span style={{ color: "#38bdf8" }}>{p.profession}</span> ({p.city}) - سنين الخبرة: {p.yearsExperience}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ margin: 0, color: "#94a3b8" }}>لا يوجد مقدمو خدمات مسجلون حتى الآن.</p>
+            )}
           </div>
         </div>
       )}
