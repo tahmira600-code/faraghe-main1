@@ -32,6 +32,7 @@ export default function DashboardPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [updatingRequest, setUpdatingRequest] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!ready) return;
@@ -39,6 +40,27 @@ export default function DashboardPage() {
       router.replace("/auth");
       return;
     }
+    
+    // التحقق من صلاحية المشرف (Admin)
+    async function checkAdminStatus() {
+      try {
+        const { createClientComponentClient } = await import("@supabase/auth-helpers-nextjs");
+        const supabase = createClientComponentClient();
+        const { data } = await supabase
+          .from("service_profiles")
+          .select("is_admin")
+          .eq("id", user.id)
+          .single();
+        
+        if (data && data.is_admin) {
+          setIsAdmin(true);
+        }
+      } catch (err) {
+        console.error("Error checking admin status:", err);
+      }
+    }
+    checkAdminStatus();
+
     const existing = providers.find((item) => item.id === user.id);
     if (existing) {
       setProfile({
@@ -118,9 +140,27 @@ export default function DashboardPage() {
   return (
     <section className="dashboard-page page-container">
       <div className="dashboard-welcome">
-        <div><p className="eyebrow">لوحة الحساب</p><h1>مرحبا، {user.name}</h1><p>{user.role === "provider" ? "كمّل الملف ديالك باش الزبناء يلقاو الخدمة ديالك." : "تابع طلبات الخدمات اللي صيفطتي."}</p></div>
+        <div>
+          <p className="eyebrow">لوحة الحساب</p>
+          <h1>مرحبا، {user.name}</h1>
+          <p>{user.role === "provider" ? "كمّل الملف ديالك باش الزبناء يلقاو الخدمة ديالك." : "تابع طلبات الخدمات اللي صيفطتي."}</p>
+        </div>
         <Link className="button button-outline" href="/">رجوع للرئيسية <span aria-hidden="true">↗</span></Link>
       </div>
+
+      {/* قسم الآدمن الخاص يظهر فقط إذا كان المستخدم مشرفاً */}
+      {isAdmin && (
+        <div className="admin-badge-box" style={{ background: "#1e293b", color: "#fff", padding: "20px", borderRadius: "12px", marginBottom: "24px", border: "2px solid #3b82f6" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <span style={{ background: "#3b82f6", padding: "4px 8px", borderRadius: "4px", fontSize: "12px", fontWeight: "bold" }}>مشرف النظام (Admin)</span>
+              <h2 style={{ margin: "8px 0 4px", fontSize: "20px" }}>لوحة تحكم المشرف</h2>
+              <p style={{ margin: 0, color: "#cbd5e1" }}>أنت مسجل حالياً بصلاحيات كاملة للتحكم في المنصة.</p>
+            </div>
+            <div style={{ fontSize: "28px" }}>⚡</div>
+          </div>
+        </div>
+      )}
 
       {user.role === "provider" ? (
         <div className="dashboard-grid">
