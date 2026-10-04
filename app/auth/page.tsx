@@ -76,17 +76,32 @@ export default function AuthPage() {
     <section className="auth-page page-container">
       <div className="auth-shell">
         <div className="auth-aside">
-          <Link href="/" className="brand auth-brand"><span className="brand-mark" aria-hidden="true">ف</span><span>faraghe</span></Link>
-          <div className="auth-aside-copy"><p className="eyebrow">قريبين ليك</p><h1>الخدمة المناسبة<br />كتبدا من هنا.</h1><p>دخل لحسابك باش تطلب الخدمات أو تتابع الملف ديالك كمقدّم خدمة.</p></div>
-          <div className="auth-aside-note"><span className="aside-note-icon">✦</span><span>خدمات من ناس<br /><strong>قريبين لمدينتك</strong></span></div>
-          <div className="auth-decor auth-decor-one" /><div className="auth-decor auth-decor-two" />
+          <Link href="/" className="brand auth-brand">
+            <span className="brand-mark" aria-hidden="true">ف</span>
+            <span>faraghe</span>
+          </Link>
+          <div className="auth-aside-copy">
+            <p className="eyebrow">قريبين ليك</p>
+            <h1>الخدمة المناسبة<br />كتبدا من هنا.</h1>
+            <p>دخل لحسابك باش تطلب الخدمات أو تتابع الملف ديالك كمقدّم خدمة.</p>
+          </div>
+          <div className="auth-aside-note">
+            <span className="aside-note-icon">✦</span>
+            <span>خدمات من ناس<br /><strong>قريبين لمدينتك</strong></span>
+          </div>
+          <div className="auth-decor auth-decor-one" />
+          <div className="auth-decor auth-decor-two" />
         </div>
         <div className="auth-form-panel">
           <div className="auth-tabs" role="tablist" aria-label="الدخول أو إنشاء حساب">
             <button className={mode === "signin" ? "selected" : ""} type="button" role="tab" aria-selected={mode === "signin"} onClick={() => changeMode("signin")}>دخول</button>
             <button className={mode === "signup" ? "selected" : ""} type="button" role="tab" aria-selected={mode === "signup"} onClick={() => changeMode("signup")}>حساب جديد</button>
           </div>
-          <div className="auth-title"><p className="eyebrow">مرحبا بيك</p><h2>{mode === "signin" ? "دخل لحسابك" : "أنشئ حساب faraghe"}</h2><p>{mode === "signin" ? "دخل المعلومات ديالك باش تكمل." : "بضع معلومات بسيطة وتكون واجد."}</p></div>
+          <div className="auth-title">
+            <p className="eyebrow">مرحبا بيك</p>
+            <h2>{mode === "signin" ? "دخل لحسابك" : "أنشئ حساب faraghe"}</h2>
+            <p>{mode === "signin" ? "دخل المعلومات ديالك باش تكمل." : "بضع معلومات بسيطة وتكون واجد."}</p>
+          </div>
           {demoMode ? <div className="demo-banner"><span aria-hidden="true">◉</span> الوضع التجريبي شغال. الحسابات والطلبات كيتخزنو غير فهاد المتصفح.</div> : null}
           <form className="stacked-form auth-form" onSubmit={handleSubmit}>
             {mode === "signup" ? <>
@@ -94,10 +109,19 @@ export default function AuthPage() {
               <input id="name" autoComplete="name" required minLength={2} value={name} onChange={(event) => setName(event.target.value)} placeholder="مثلاً: سلمى بناني" />
               <label>بغيت نستعمل faraghe كـ</label>
               <div className="role-choices">
-                <label className={`role-choice ${role === "client" ? "role-selected" : ""}`}><input type="radio" name="role" value="client" checked={role === "client"} onChange={() => setRole("client")} /><span className="role-choice-icon">⌕</span><span><strong>زبون</strong><small>نقلب على الخدمات</small></span></label>
-                <label className={`role-choice ${role === "provider" ? "role-selected" : ""}`}><input type="radio" name="role" value="provider" checked={role === "provider"} onChange={() => setRole("provider")} /><span className="role-choice-icon">✳</span><span><strong>مقدّم خدمة</strong><small>نعرّف الناس بخدمتي</small></span></label>
+                <label className={`role-choice ${role === "client" ? "role-selected" : ""}`}>
+                  <input type="radio" name="role" value="client" checked={role === "client"} onChange={() => setRole("client")} />
+                  <span className="role-choice-icon">⌕</span>
+                  <span><strong>زبون</strong><small>نقلب على الخدمات</small></span>
+                </label>
+                <label className={`role-choice ${role === "provider" ? "role-selected" : ""}`}>
+                  <input type="radio" name="role" value="provider" checked={role === "provider"} onChange={() => setRole("provider")} />
+                  <span className="role-choice-icon">✳</span>
+                  <span><strong>مقدّم خدمة</strong><small>نعرّف الناس بخدمتي</small></span>
+                </label>
               </div>
             </> : null}
+            
             <label htmlFor="email">البريد الإلكتروني</label>
             <input id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" dir="ltr" />
             
@@ -106,7 +130,11 @@ export default function AuthPage() {
             
             {error ? <p className="form-error" role="alert">{error}</p> : null}
             {notice ? <p className="form-notice" role="status">{notice}</p> : null}
-            <button className="button button-primary button-full auth-submit" type="submit" disabled={saving}>{saving ? "لحظة من فضلك..." : mode === "signin" ? "دخول للحساب" : "أنشئ الحساب"}<span aria-hidden="true">←</span></button>
+            
+            <button className="button button-primary button-full auth-submit" type="submit" disabled={saving}>
+              {saving ? "لحظة من فضلك..." : mode === "signin" ? "دخول للحساب" : "أنشئ الحساب"}
+              <span aria-hidden="true">←</span>
+            </button>
             
             <div style={{ display: "flex", alignItems: "center", margin: "12px 0", color: "#888" }}>
               <div style={{ flex: 1, height: "1px", backgroundColor: "#e5e7eb" }}></div>
@@ -138,7 +166,12 @@ export default function AuthPage() {
               المتابعة باستخدام جوجل
             </button>
           </form>
-          <p className="auth-switch">{mode === "signin" ? "ما عندكش حساب؟" : "عندك حساب من قبل؟"} <button type="button" onClick={() => changeMode(mode === "signin" ? "signup" : "signin")}>{mode === "signin" ? "سجّل دابا" : "دخل لحسابك"}</button></p>
+          <p className="auth-switch">
+            {mode === "signin" ? "ما عندكش حساب؟" : "عندك حساب من قبل؟"}{" "}
+            <button type="button" onClick={() => changeMode(mode === "signin" ? "signup" : "signin")}>
+              {mode === "signin" ? "سجّل دابا" : "دخل لحسابك"}
+            </button>
+          </p>
           <p className="auth-terms">بالمتابعة، كتوافق تستعمل faraghe باحترام وبطريقة مسؤولة.</p>
         </div>
       </div>
