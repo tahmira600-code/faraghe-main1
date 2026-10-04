@@ -156,7 +156,7 @@ export default function DashboardPage() {
             {providers.length > 0 ? (
               <ul style={{ margin: 0, paddingRight: "0", listStyle: "none" }}>
                 {providers.map((p) => {
-                  const providerEmail = (p as any).email || p.id || "غير متوفر";
+                  const providerEmail = (p as any).email || (p as any).userEmail || (p as any).gmail || (p.id.includes('@') ? p.id : "الإيميل غير مسجل في قاعدة البيانات");
                   return (
                     <li key={p.id} style={{ marginBottom: "14px", borderBottom: "1px solid #1e293b", paddingBottom: "10px" }}>
                       <div style={{ fontSize: "15px", color: "#f8fafc" }}>
