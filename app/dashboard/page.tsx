@@ -33,8 +33,8 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [updatingRequest, setUpdatingRequest] = useState("");
 
-  // تفعيل لوحة المشرف
-  const isAdmin = true;
+  // التحقق من أنك أنت المشرف حصرياً
+  const isAdmin = user?.email === "Tahmira600@gmail.com";
 
   useEffect(() => {
     if (!ready) return;
@@ -123,25 +123,24 @@ export default function DashboardPage() {
       <div className="dashboard-welcome">
         <div>
           <p className="eyebrow">لوحة الحساب</p>
-          <h1>مرحبا، {user.name}</h1>
-          <p>{user.role === "provider" ? "كمّل الملف ديالك باش الزبناء يلقاو الخدمة ديالك." : "تابع طلبات الخدمات اللي صيفطتي."}</p>
+          <h1>مرحبا، {user.name} {isAdmin && "(المشرف العام)"}</h1>
+          <p>{isAdmin ? "لوحة التحكم الخاصة بإدارة المنصة ومتابعة المسجلين." : user.role === "provider" ? "كمّل الملف ديالك باش الزبناء يلقاو الخدمة ديالك." : "تابع طلبات الخدمات اللي صيفطتي."}</p>
         </div>
         <Link className="button button-outline" href="/">رجوع للرئيسية <span aria-hidden="true">↗</span></Link>
       </div>
 
-      {/* لوحة تحكم المشرف الحقيقية مع الإحصائيات */}
+      {/* لوحة تحكم المشرف (تظهر لك وحدك) */}
       {isAdmin && (
         <div style={{ background: "#1e293b", color: "#fff", padding: "24px", borderRadius: "12px", marginBottom: "28px", border: "2px solid #3b82f6" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
             <div>
               <span style={{ background: "#3b82f6", padding: "4px 10px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}>مشرف المنصة (Admin Panel)</span>
               <h2 style={{ margin: "10px 0 4px", fontSize: "22px" }}>إدارة منصة Faraghe</h2>
-              <p style={{ margin: 0, color: "#cbd5e1" }}>هنا يمكنك الاطلاع على جميع نشاطات المنصة والمستخدمين المسجلين.</p>
+              <p style={{ margin: 0, color: "#cbd5e1" }}>أنت تملك صلاحيات المشرف الكاملة على المنصة.</p>
             </div>
             <div style={{ fontSize: "32px" }}>⚡</div>
           </div>
 
-          {/* أعداد إحصائية سريعة */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", marginBottom: "20px" }}>
             <div style={{ background: "#0f172a", padding: "15px", borderRadius: "8px", border: "1px solid #334155" }}>
               <p style={{ margin: "0 0 5px", color: "#94a3b8", fontSize: "14px" }}>إجمالي مقدمي الخدمات</p>
@@ -153,7 +152,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* قائمة مقدمي الخدمات المسجلين */}
           <div style={{ background: "#0f172a", padding: "15px", borderRadius: "8px", border: "1px solid #334155" }}>
             <h3 style={{ margin: "0 0 10px", fontSize: "16px", color: "#f8fafc" }}>قائمة مقدمي الخدمات المسجلين حالياً:</h3>
             {providers.length > 0 ? (
@@ -171,7 +169,8 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {user.role === "provider" ? (
+      {/* نموذج الملف المهني يظهر للمستخدمين العاديين فقط، ولا يظهر لك كمشرف */}
+      {!isAdmin && user.role === "provider" ? (
         <div className="dashboard-grid">
           <section className="dashboard-panel profile-panel">
             <div className="panel-heading"><div><p className="eyebrow">الملف المهني</p><h2>عرّف الناس بخدمتك</h2></div><span className="panel-step">1 / 1</span></div>
@@ -214,21 +213,23 @@ export default function DashboardPage() {
             <div className="dashboard-summary"><span className="summary-icon">▣</span><div><strong>{profile.profession && profile.city ? "ملفك واجد للظهور" : "كمّل معلومات الملف"}</strong><p>{profile.profession && profile.city ? "يقدر يبان فنتائج البحث." : "اختار المهنة والمدينة باش يبان الملف."}</p></div></div>
           </aside>
         </div>
-      ) : (
+      ) : !isAdmin ? (
         <div className="client-note"><span className="client-note-icon">⌕</span><div><h2>قلب على الخدمة اللي محتاج</h2><p>اختار مقدّم خدمة وصيفط طلب، وغادي تلقى الحالة ديالو هنا.</p></div><Link className="button button-primary" href="/#providers">قلب على خدمة <span aria-hidden="true">←</span></Link></div>
-      )}
+      ) : null}
 
-      <section className="requests-panel">
-        <div className="panel-heading"><div><p className="eyebrow">تواصل وطلبات</p><h2>{user.role === "provider" ? "الطلبات اللي وصلوك" : "الطلبات ديالك"}</h2></div><span className="request-count">{myRequests.length} طلب</span></div>
-        {error && user.role === "provider" ? <p className="form-error" role="alert">{error}</p> : null}
-        {myRequests.length ? <div className="request-list">{myRequests.map((request) => (
-          <article className="request-row" key={request.id}>
-            <div className="request-row-icon" aria-hidden="true">{user.role === "provider" ? request.clientName.slice(0, 1) : request.providerName.slice(0, 1)}</div>
-            <div className="request-main"><div className="request-title-row"><h3>{user.role === "provider" ? request.clientName : request.providerName}</h3><span className={`status-pill status-${request.status}`}>{statusText(request.status)}</span></div><p>{request.message}</p><span className="request-date">موعد الخدمة: {request.preferredDate} مع {request.preferredTime.slice(0, 5)}</span></div>
-            {user.role === "provider" && request.status === "pending" ? <div className="request-actions"><button className="button button-outline" type="button" disabled={updatingRequest === request.id} onClick={() => handleStatus(request.id, "declined")}>اعتذار</button><button className="button button-primary" type="button" disabled={updatingRequest === request.id} onClick={() => handleStatus(request.id, "accepted")}>قبول</button></div> : null}
-          </article>
-        ))}</div> : <div className="empty-request"><span aria-hidden="true">✦</span><p>ما كاين حتى طلب دابا. ملي يكون شي تحديث، غادي يبان هنا.</p></div>}
-      </section>
+      {!isAdmin && (
+        <section className="requests-panel">
+          <div className="panel-heading"><div><p className="eyebrow">تواصل وطلبات</p><h2>{user.role === "provider" ? "الطلبات اللي وصلوك" : "الطلبات ديالك"}</h2></div><span className="request-count">{myRequests.length} طلب</span></div>
+          {error && user.role === "provider" ? <p className="form-error" role="alert">{error}</p> : null}
+          {myRequests.length ? <div className="request-list">{myRequests.map((request) => (
+            <article className="request-row" key={request.id}>
+              <div className="request-row-icon" aria-hidden="true">{user.role === "provider" ? request.clientName.slice(0, 1) : request.providerName.slice(0, 1)}</div>
+              <div className="request-main"><div className="request-title-row"><h3>{user.role === "provider" ? request.clientName : request.providerName}</h3><span className={`status-pill status-${request.status}`}>{statusText(request.status)}</span></div><p>{request.message}</p><span className="request-date">موعد الخدمة: {request.preferredDate} مع {request.preferredTime.slice(0, 5)}</span></div>
+              {user.role === "provider" && request.status === "pending" ? <div className="request-actions"><button className="button button-outline" type="button" disabled={updatingRequest === request.id} onClick={() => handleStatus(request.id, "declined")}>اعتذار</button><button className="button button-primary" type="button" disabled={updatingRequest === request.id} onClick={() => handleStatus(request.id, "accepted")}>قبول</button></div> : null}
+            </article>
+          ))}</div> : <div className="empty-request"><span aria-hidden="true">✦</span><p>ما كاين حتى طلب دابا. ملي يكون شي تحديث، غادي يبان هنا.</p></div>}
+        </section>
+      )}
     </section>
   );
 }
