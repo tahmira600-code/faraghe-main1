@@ -259,3 +259,27 @@ export default function DashboardPage() {
     </section>
   );
 }
+<div style={{ background: "#0f172a", padding: "15px", borderRadius: "8px", border: "1px solid #334155" }}>
+            <h3 style={{ margin: "0 0 10px", fontSize: "16px", color: "#f8fafc" }}>قائمة مقدمي الخدمات المسجلين حالياً:</h3>
+            {providers.length > 0 ? (
+              <ul style={{ margin: 0, paddingRight: "20px", color: "#e2e8f0" }}>
+                {providers.map((p) => {
+                  // هنا كنخليو الكود يجيب الإيميل فين ما كان مخبي (سواء في p.id أو p.email)
+                  const providerEmail = (p as any).email || p.id || "غير متوفر";
+                  return (
+                    <li key={p.id} style={{ marginBottom: "14px", borderBottom: "1px solid #1e293b", paddingBottom: "10px" }}>
+                      <div style={{ fontSize: "15px" }}><strong>{p.fullName}</strong> — <span style={{ color: "#38bdf8" }}>{p.profession}</span> ({p.city})</div>
+                      <div style={{ fontSize: "13px", color: "#38bdf8", marginTop: "4px", direction: "ltr", textAlign: "right" }}>
+                        📧 {providerEmail}
+                      </div>
+                      <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "2px" }}>
+                        سنين الخبرة: {p.yearsExperience} {p.travelsToClient ? "| 🚗 ينقل عند الزبون" : ""}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p style={{ margin: 0, color: "#94a3b8" }}>لا يوجد مقدمو خدمات مسجلون حتى الآن.</p>
+            )}
+          </div>
