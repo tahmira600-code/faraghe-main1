@@ -33,7 +33,8 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [updatingRequest, setUpdatingRequest] = useState("");
 
-  const isAdmin = user?.email === "Tahmira600@gmail.com";
+  // التحقق الشامل باش نضمنو بلي لوحة المشرف تطلع ليك وحدك بناءً على الاسم أو الإيميل
+  const isAdmin = user?.name === "tahmira600" || user?.email?.toLowerCase().includes("tahmira600");
 
   useEffect(() => {
     if (!ready) return;
@@ -128,7 +129,7 @@ export default function DashboardPage() {
         <Link className="button button-outline" href="/">رجوع للرئيسية <span aria-hidden="true">↗</span></Link>
       </div>
 
-      {/* لوحة تحكم المشرف (تظهر لك وحدك وبشكل واضح) */}
+      {/* لوحة تحكم المشرف (تظهر لك وحدك بناءً على tahmira600) */}
       {isAdmin && (
         <div style={{ background: "#1e293b", color: "#fff", padding: "24px", borderRadius: "12px", marginBottom: "28px", border: "2px solid #3b82f6" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
