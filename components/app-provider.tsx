@@ -68,18 +68,16 @@ function fromDatabase(row: Record<string, unknown>): Provider {
     rating: Number(row.rating ?? 0),
     reviewCount: Number(row.review_count ?? 0),
     color: String(row.color ?? "mint"),
-    ...(row.email ? { email: String(row.email) } : {}),
-  } as Provider;
+  };
 }
 
-function toDatabase(profile: Provider & { email?: string }) {
+function toDatabase(profile: Provider) {
   return {
     id: profile.id,
     full_name: profile.fullName,
     profession: profile.profession,
     city: profile.city,
     bio: profile.bio,
-    email: profile.email ?? "",
     years_experience: profile.yearsExperience,
     travels_to_client: profile.travelsToClient,
     availability: profile.availability,
@@ -238,10 +236,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const newUser = userFromAuth(data.user);
       setUser(newUser);
       if (role === "provider") {
-        const initialProfile = {
+        const initialProfile: Provider = {
           id: data.user.id,
           fullName: name,
-          email: email,
           profession: "",
           city: "",
           bio: "",
@@ -254,7 +251,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         };
         const { error: profileError } = await supabase.from("service_profiles").upsert(toDatabase(initialProfile));
         if (profileError) throw new Error(profileError.message);
-        setProviders((current) => [initialProfile as unknown as Provider, ...current.filter((item) => item.id !== initialProfile.id)]);
+        setProviders((current) => [initialProfile, ...current.filter((item) => item.id !== initialProfile.id)]);
       }
       return true;
     }
@@ -274,10 +271,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUser(demoUser);
     writeStored(USER_KEY, demoUser);
     if (role === "provider") {
-      const profile = {
+      const profile: Provider = {
         id: demoUser.id,
         fullName: name,
-        email: email,
         profession: "",
         city: "",
         bio: "",
@@ -289,7 +285,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         color: "mint",
       };
       setProviders((current) => {
-        const next = [profile as unknown as Provider, ...current.filter((item) => item.id !== profile.id)];
+        const next = [profile, ...current.filter((item) => item.id !== profile.id)];
         writeStored(PROVIDERS_KEY, next);
         return next;
       });
@@ -312,10 +308,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const saveProvider = useCallback(async (draft: ProviderDraft) => {
     if (!user) throw new Error("خاصك تدخل لحسابك قبل ما تحفظ الملف.");
     const existing = providers.find((item) => item.id === user.id);
-    const profile = {
+    const profile: Provider = {
       ...draft,
       id: user.id,
-      email: user.email || (existing as any)?.email || "",
       rating: existing?.rating ?? 0,
       reviewCount: existing?.reviewCount ?? 0,
       color: existing?.color ?? "mint",
@@ -325,10 +320,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.from("service_profiles").upsert(toDatabase(profile));
       if (error) throw new Error(error.message);
     } else {
-      const next = [profile as unknown as Provider, ...providers.filter((item) => item.id !== profile.id)];
+      const next = [profile, ...providers.filter((item) => item.id !== profile.id)];
       writeStored(PROVIDERS_KEY, next);
     }
-    setProviders((current) => [profile as unknown as Provider, ...current.filter((item) => item.id !== profile.id)]);
+    setProviders((current) => [profile, ...current.filter((item) => item.id !== profile.id)]);
   }, [providers, user]);
 
   const createRequest = useCallback(async (provider: Provider, message: string, preferredDate: string, preferredTime: string) => {
