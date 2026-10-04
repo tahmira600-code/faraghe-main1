@@ -33,7 +33,6 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [updatingRequest, setUpdatingRequest] = useState("");
 
-  // التحقق الشامل باش نضمنو بلي لوحة المشرف تطلع ليك وحدك بناءً على الاسم أو الإيميل
   const isAdmin = user?.name === "tahmira600" || user?.email?.toLowerCase().includes("tahmira600");
 
   useEffect(() => {
@@ -129,7 +128,7 @@ export default function DashboardPage() {
         <Link className="button button-outline" href="/">رجوع للرئيسية <span aria-hidden="true">↗</span></Link>
       </div>
 
-      {/* لوحة تحكم المشرف (تظهر لك وحدك بناءً على tahmira600) */}
+      {/* لوحة تحكم المشرف (تظهر لك وحدك) */}
       {isAdmin && (
         <div style={{ background: "#1e293b", color: "#fff", padding: "24px", borderRadius: "12px", marginBottom: "28px", border: "2px solid #3b82f6" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
@@ -153,14 +152,25 @@ export default function DashboardPage() {
           </div>
 
           <div style={{ background: "#0f172a", padding: "15px", borderRadius: "8px", border: "1px solid #334155" }}>
-            <h3 style={{ margin: "0 0 10px", fontSize: "16px", color: "#f8fafc" }}>قائمة مقدمي الخدمات المسجلين حالياً:</h3>
+            <h3 style={{ margin: "0 0 12px", fontSize: "16px", color: "#f8fafc" }}>قائمة مقدمي الخدمات المسجلين حالياً:</h3>
             {providers.length > 0 ? (
-              <ul style={{ margin: 0, paddingRight: "20px", color: "#e2e8f0" }}>
-                {providers.map((p) => (
-                  <li key={p.id} style={{ marginBottom: "8px" }}>
-                    <strong>{p.fullName}</strong> — <span style={{ color: "#38bdf8" }}>{p.profession}</span> ({p.city}) - سنين الخبرة: {p.yearsExperience}
-                  </li>
-                ))}
+              <ul style={{ margin: 0, paddingRight: "0", listStyle: "none" }}>
+                {providers.map((p) => {
+                  const providerEmail = (p as any).email || p.id || "غير متوفر";
+                  return (
+                    <li key={p.id} style={{ marginBottom: "14px", borderBottom: "1px solid #1e293b", paddingBottom: "10px" }}>
+                      <div style={{ fontSize: "15px", color: "#f8fafc" }}>
+                        <strong>{p.fullName}</strong> — <span style={{ color: "#38bdf8" }}>{p.profession}</span> ({p.city})
+                      </div>
+                      <div style={{ fontSize: "13px", color: "#38bdf8", marginTop: "4px", direction: "ltr", textAlign: "right" }}>
+                        📧 {providerEmail}
+                      </div>
+                      <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "2px" }}>
+                        سنين الخبرة: {p.yearsExperience} {p.travelsToClient ? "| 🚗 ينقل عند الزبون" : ""}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <p style={{ margin: 0, color: "#94a3b8" }}>لا يوجد مقدمو خدمات مسجلون حتى الآن.</p>
@@ -169,7 +179,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* استمارة الملف المهني (تظهر فقط للمزودين العاديين، ومخفية عنك تماماً) */}
+      {/* استمارة الملف المهني (تظهر فقط للمزودين العاديين، ومخفية عنك) */}
       {!isAdmin && user.role === "provider" && (
         <div className="dashboard-grid">
           <section className="dashboard-panel profile-panel">
@@ -259,27 +269,3 @@ export default function DashboardPage() {
     </section>
   );
 }
-<div style={{ background: "#0f172a", padding: "15px", borderRadius: "8px", border: "1px solid #334155" }}>
-            <h3 style={{ margin: "0 0 10px", fontSize: "16px", color: "#f8fafc" }}>قائمة مقدمي الخدمات المسجلين حالياً:</h3>
-            {providers.length > 0 ? (
-              <ul style={{ margin: 0, paddingRight: "20px", color: "#e2e8f0" }}>
-                {providers.map((p) => {
-                  // هنا كنخليو الكود يجيب الإيميل فين ما كان مخبي (سواء في p.id أو p.email)
-                  const providerEmail = (p as any).email || p.id || "غير متوفر";
-                  return (
-                    <li key={p.id} style={{ marginBottom: "14px", borderBottom: "1px solid #1e293b", paddingBottom: "10px" }}>
-                      <div style={{ fontSize: "15px" }}><strong>{p.fullName}</strong> — <span style={{ color: "#38bdf8" }}>{p.profession}</span> ({p.city})</div>
-                      <div style={{ fontSize: "13px", color: "#38bdf8", marginTop: "4px", direction: "ltr", textAlign: "right" }}>
-                        📧 {providerEmail}
-                      </div>
-                      <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "2px" }}>
-                        سنين الخبرة: {p.yearsExperience} {p.travelsToClient ? "| 🚗 ينقل عند الزبون" : ""}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <p style={{ margin: 0, color: "#94a3b8" }}>لا يوجد مقدمو خدمات مسجلون حتى الآن.</p>
-            )}
-          </div>
