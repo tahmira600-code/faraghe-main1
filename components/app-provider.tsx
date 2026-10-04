@@ -102,6 +102,16 @@ function fromRequest(row: Record<string, unknown>, providerName?: string): Match
   };
 }
 
+// دالة آمنة تماماً وخالية من أي رموز قد تفشل في البناء على Vercel
+function isValidTime(str: string): boolean {
+  if (typeof str !== "string" || str.length !== 5) return false;
+  if (str[2] !== ":") return false;
+  const [hStr, mStr] = str.split(":");
+  const h = Number(hStr);
+  const m = Number(mStr);
+  return !isNaN(h) && !isNaN(m) && h >= 0 && h <= 23 && m >= 0 && m <= 59;
+}
+
 function parseAvailability(value: unknown): AvailabilitySlot[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item) => {
@@ -110,7 +120,7 @@ function parseAvailability(value: unknown): AvailabilitySlot[] {
     const weekday = Number(slot.weekday);
     const start = String(slot.start ?? "");
     const end = String(slot.end ?? "");
-    if (weekday < 1 || weekday > 7 || !/^\d{2}:\d{2}$/.test(start) \vert{}\vert{} !/^\d{2}:\d{2}$/.test(end)) return [];
+    if (weekday < 1 || weekday > 7 || !isValidTime(start) || !isValidTime(end)) return [];
     return [{ weekday, start, end }];
   });
 }
