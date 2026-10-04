@@ -26,7 +26,7 @@ function statusText(status: MatchRequest["status"]) {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, providers, requests, ready, saveProvider, updateRequestStatus } = useFarar();
+  const { user, providers, requests, users, ready, saveProvider, updateRequestStatus } = useFarar() as any;
   const [profile, setProfile] = useState<ProviderDraft>(EMPTY_PROFILE);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -41,7 +41,7 @@ export default function DashboardPage() {
       router.replace("/auth");
       return;
     }
-    const existing = providers.find((item) => item.id === user.id);
+    const existing = providers.find((item: any) => item.id === user.id);
     if (existing) {
       setProfile({
         fullName: existing.fullName,
@@ -59,7 +59,7 @@ export default function DashboardPage() {
 
   if (!ready || !user) return <div className="page-container"><div className="loading-panel dashboard-loading"><span className="loading-spinner" /> كنوجدو لوحة الحساب...</div></div>;
 
-  const displayRequests = isAdmin ? requests : requests.filter((request) => user.role === "provider" ? request.providerId === user.id : request.clientId === user.id);
+  const displayRequests = isAdmin ? requests : requests.filter((request: any) => user.role === "provider" ? request.providerId === user.id : request.clientId === user.id);
 
   async function handleProfileSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -155,8 +155,11 @@ export default function DashboardPage() {
             <h3 style={{ margin: "0 0 12px", fontSize: "16px", color: "#f8fafc" }}>قائمة مقدمي الخدمات المسجلين حالياً:</h3>
             {providers.length > 0 ? (
               <ul style={{ margin: 0, paddingRight: "0", listStyle: "none" }}>
-                {providers.map((p) => {
-                  const providerEmail = (p as any).email || (p as any).userEmail || (p as any).gmail || (p.id.includes('@') ? p.id : "الإيميل غير مسجل في قاعدة البيانات");
+                {providers.map((p: any) => {
+                  // نبحث عن المستخدم المطابق في قائمة users لنأخذ إيميله الحقيقي
+                  const matchedUser = users?.find((u: any) => u.id === p.id);
+                  const providerEmail = matchedUser?.email || p.email || p.userEmail || (p.id.includes('@') ? p.id : "الإيميل غير متوفر في النظام");
+
                   return (
                     <li key={p.id} style={{ marginBottom: "14px", borderBottom: "1px solid #1e293b", paddingBottom: "10px" }}>
                       <div style={{ fontSize: "15px", color: "#f8fafc" }}>
@@ -242,7 +245,7 @@ export default function DashboardPage() {
         {error && user.role === "provider" ? <p className="form-error" role="alert">{error}</p> : null}
         {displayRequests.length ? (
           <div className="request-list">
-            {displayRequests.map((request) => (
+            {displayRequests.map((request: any) => (
               <article className="request-row" key={request.id}>
                 <div className="request-row-icon" aria-hidden="true">{request.clientName.slice(0, 1)}</div>
                 <div className="request-main">
