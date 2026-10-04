@@ -9,7 +9,7 @@ export function isSupabaseConfigured() {
   );
 }
 
-export function getSupabaseBrowserClient() {
+export function getSupabaseBrowserClient(): SupabaseClient | null {
   if (!isSupabaseConfigured()) return null;
   if (!browserClient) {
     browserClient = createClient(
@@ -26,3 +26,7 @@ export function getSupabaseBrowserClient() {
   }
   return browserClient;
 }
+
+// هادو هما اللي كانو ناقصين و مطيحين البيلد فـ Vercel
+export const supabase = getSupabaseBrowserClient();
+export default supabase;
