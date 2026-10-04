@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { useFarar } from "@/components/app-provider";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { UserRole } from "@/lib/types";
 
 export default function AuthPage() {
@@ -39,6 +39,11 @@ export default function AuthPage() {
     setError("");
     setNotice("");
     try {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        setError("إعدادات Supabase ناقصة فـ Vercel");
+        return;
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -121,27 +126,21 @@ export default function AuthPage() {
                 </label>
               </div>
             </> : null}
-            
             <label htmlFor="email">البريد الإلكتروني</label>
             <input id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" dir="ltr" />
-            
             <label htmlFor="password">كلمة المرور</label>
             <input id="password" type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="8 أحرف على الأقل" dir="ltr" />
-            
             {error ? <p className="form-error" role="alert">{error}</p> : null}
             {notice ? <p className="form-notice" role="status">{notice}</p> : null}
-            
             <button className="button button-primary button-full auth-submit" type="submit" disabled={saving}>
               {saving ? "لحظة من فضلك..." : mode === "signin" ? "دخول للحساب" : "أنشئ الحساب"}
               <span aria-hidden="true">←</span>
             </button>
-            
             <div style={{ display: "flex", alignItems: "center", margin: "12px 0", color: "#888" }}>
               <div style={{ flex: 1, height: "1px", backgroundColor: "#e5e7eb" }}></div>
               <span style={{ padding: "0 10px", fontSize: "13px" }}>أو</span>
               <div style={{ flex: 1, height: "1px", backgroundColor: "#e5e7eb" }}></div>
             </div>
-
             <button
               type="button"
               onClick={handleGoogleLogin}
@@ -154,10 +153,7 @@ export default function AuthPage() {
                 backgroundColor: "#fff",
                 color: "#374151",
                 border: "1px solid #d1d5db",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24">
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)"[STRIPPED 57 bytes]"18" height="18" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
