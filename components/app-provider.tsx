@@ -94,6 +94,7 @@ function fromRequest(row: Record<string, unknown>, providerName?: string): Match
     providerId: String(row.provider_id),
     providerName: providerName ?? "مقدّم الخدمة",
     clientName: String(row.client_name ?? "زبون"),
+    clientEmail: String(row.client_email ?? row.email ?? ""), // قراءة الإيميل من القاعدة
     message: String(row.message ?? ""),
     preferredDate: String(row.preferred_date ?? ""),
     preferredTime: String(row.preferred_time ?? ""),
@@ -345,6 +346,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       providerId: provider.id,
       providerName: provider.fullName,
       clientName: user.name,
+      clientEmail: user.email, // حفظ الإيميل محلياً
       message,
       preferredDate,
       preferredTime,
@@ -358,6 +360,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           client_id: user.id,
           provider_id: provider.id,
           client_name: user.name,
+          client_email: user.email, // حفظ الإيميل في Supabase
           message,
           preferred_date: preferredDate,
           preferred_time: preferredTime,
