@@ -101,7 +101,7 @@ export default function AuthPage() {
             <label htmlFor="email">البريد الإلكتروني</label>
             <input id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" dir="ltr" />
             <label htmlFor="password">كلمة المرور</label>
-            <input id="password" type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={8} value[cite: 8]={password} onChange={(event) => setPassword(event.target.value)} placeholder="8 أحرف على الأقل" dir="ltr" />
+            <input id="password" type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="8 أحرف على الأقل" dir="ltr" />
             {error ? <p className="form-error" role="alert">{error}</p> : null}
             {notice ? <p className="form-notice" role="status">{notice}</p> : null}
             <button className="button button-primary button-full auth-submit" type="submit" disabled={saving}>{saving ? "لحظة من فضلك..." : mode === "signin" ? "دخول للحساب" : "أنشئ الحساب"}<span aria-hidden="true">←</span></button>
