@@ -62,24 +62,24 @@ function fromDatabase(row: Record<string, unknown>): Provider {
     profession: String(row.profession ?? "خدمة منزلية"),
     city: String(row.city ?? ""),
     bio: String(row.bio ?? ""),
-    email: String(row.email ?? ""),
     yearsExperience: Number(row.years_experience ?? 0),
     travelsToClient: Boolean(row.travels_to_client),
     availability: parseAvailability(row.availability),
     rating: Number(row.rating ?? 0),
     reviewCount: Number(row.review_count ?? 0),
     color: String(row.color ?? "mint"),
-  };
+    ...(row.email ? { email: String(row.email) } : {}),
+  } as Provider;
 }
 
-function toDatabase(profile: Provider) {
+function toDatabase(profile: Provider & { email?: string }) {
   return {
     id: profile.id,
     full_name: profile.fullName,
     profession: profile.profession,
     city: profile.city,
     bio: profile.bio,
-    email: profile.email,
+    email: profile.email ?? "",
     years_experience: profile.yearsExperience,
     travels_to_client: profile.travelsToClient,
     availability: profile.availability,
@@ -238,7 +238,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const newUser = userFromAuth(data.user);
       setUser(newUser);
       if (role === "provider") {
-        const initialProfile: Provider = {
+        const initialProfile = {
           id: data.user.id,
           fullName: name,
           email: email,
@@ -254,7 +254,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         };
         const { error: profileError } = await supabase.from("service_profiles").upsert(toDatabase(initialProfile));
         if (profileError) throw new Error(profileError.message);
-        setProviders((current) => [initialProfile, ...current.filter((item) => item.id !== initialProfile.id)]);
+        setProviders((current) => [initialProfile as unknown as Provider, ...current.filter((item) => item.id !== initialProfile.id)]);
       }
       return true;
     }
@@ -274,7 +274,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUser(demoUser);
     writeStored(USER_KEY, demoUser);
     if (role === "provider") {
-      const profile: Provider = {
+      const profile = {
         id: demoUser.id,
         fullName: name,
         email: email,
@@ -289,7 +289,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         color: "mint",
       };
       setProviders((current) => {
-        const next = [profile, ...current.filter((item) => item.id !== profile.id)];
+        const next = [profile as unknown as Provider, ...current.filter((item) => item.id !== profile.id)];
         writeStored(PROVIDERS_KEY, next);
         return next;
       });
@@ -312,10 +312,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const saveProvider = useCallback(async (draft: ProviderDraft) => {
     if (!user) throw new Error("خاصك تدخل لحسابك قبل ما تحفظ الملف.");
     const existing = providers.find((item) => item.id === user.id);
-    const profile: Provider = {
+    const profile = {
       ...draft,
       id: user.id,
-      email: user.email || existing?.email || "",
+      email: user.email || (existing as any)?.email || "",
       rating: existing?.rating ?? 0,
       reviewCount: existing?.reviewCount ?? 0,
       color: existing?.color ?? "mint",
@@ -325,10 +325,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.from("service_profiles").upsert(toDatabase(profile));
       if (error) throw new Error(error.message);
     } else {
-      const next = [profile, ...providers.filter((item) => item.id !== profile.id)];
+      const next = [profile as unknown as Provider, ...providers.filter((item) => item.id !== profile.id)];
       writeStored(PROVIDERS_KEY, next);
     }
-    setProviders((current) => [profile, ...current.filter((item) => item.id !== profile.id)]);
+    setProviders((current) => [profile as unknown as Provider, ...current.filter((item) => item.id !== profile.id)]);
   }, [providers, user]);
 
   const createRequest = useCallback(async (provider: Provider, message: string, preferredDate: string, preferredTime: string) => {
