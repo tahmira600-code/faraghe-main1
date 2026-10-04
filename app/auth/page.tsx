@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { useFarar } from "@/components/app-provider";
-import { supabase } from "@/lib/supabase"; // استيراد عميل Supabase مباشرة
+import { supabase } from "@/lib/supabase";
 import type { UserRole } from "@/lib/types";
 
 export default function AuthPage() {
@@ -104,7 +104,7 @@ export default function AuthPage() {
             <input id="password" type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="8 أحرف على الأقل" dir="ltr" />
             {error ? <p className="form-error" role="alert">{error}</p> : null}
             {notice ? <p className="form-notice" role="status">{notice}</p> : null}
-            <button className="button button-primary button-full auth-submit" type="submit" disabled={saving}>{saving ? "لحظة من فضلك..." : mode ===="signin" ? "دخول للحساب" : "أنشئ الحساب"}<span aria-hidden="true">←</span></button>
+            <button className="button button-primary button-full auth-submit" type="submit" disabled={saving}>{saving ? "لحظة من فضلك..." : mode === "signin" ? "دخول للحساب" : "أنشئ الحساب"}<span aria-hidden="true">←</span></button>
             
             <div style={{ display: "flex", alignItems: "center", margin: "12px 0", color: "#888" }}>
               <div style={{ flex: 1, height: "1px", backgroundColor: "#e5e7eb" }}></div>
