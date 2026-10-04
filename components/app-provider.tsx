@@ -62,6 +62,7 @@ function fromDatabase(row: Record<string, unknown>): Provider {
     profession: String(row.profession ?? "خدمة منزلية"),
     city: String(row.city ?? ""),
     bio: String(row.bio ?? ""),
+    email: String(row.email ?? ""),
     yearsExperience: Number(row.years_experience ?? 0),
     travelsToClient: Boolean(row.travels_to_client),
     availability: parseAvailability(row.availability),
@@ -78,6 +79,7 @@ function toDatabase(profile: Provider) {
     profession: profile.profession,
     city: profile.city,
     bio: profile.bio,
+    email: profile.email,
     years_experience: profile.yearsExperience,
     travels_to_client: profile.travelsToClient,
     availability: profile.availability,
@@ -110,7 +112,7 @@ function parseAvailability(value: unknown): AvailabilitySlot[] {
     const weekday = Number(slot.weekday);
     const start = String(slot.start ?? "");
     const end = String(slot.end ?? "");
-    if (weekday < 1 || weekday > 7 || !/^\d{2}:\d{2}$/.test(start) || !/^\d{2}:\d{2}$/.test(end)) return [];
+    if (weekday < 1 || weekday > 7 || !/^\d{2}:\d{2}$/.test(start) \vert{}\vert{} !/^\d{2}:\d{2}$/.test(end)) return [];
     return [{ weekday, start, end }];
   });
 }
@@ -239,6 +241,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const initialProfile: Provider = {
           id: data.user.id,
           fullName: name,
+          email: email,
           profession: "",
           city: "",
           bio: "",
@@ -274,6 +277,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const profile: Provider = {
         id: demoUser.id,
         fullName: name,
+        email: email,
         profession: "",
         city: "",
         bio: "",
@@ -311,6 +315,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const profile: Provider = {
       ...draft,
       id: user.id,
+      email: user.email || existing?.email || "",
       rating: existing?.rating ?? 0,
       reviewCount: existing?.reviewCount ?? 0,
       color: existing?.color ?? "mint",
