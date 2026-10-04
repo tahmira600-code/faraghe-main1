@@ -34,11 +34,11 @@ export type MatchRequest = {
   providerId: string;
   providerName: string;
   clientName: string;
+  clientEmail?: string; // أضفنا هذا السطر الجديد هنا
   message: string;
   preferredDate: string;
   preferredTime: string;
   status: "pending" | "accepted" | "declined";
   createdAt: string;
 };
-
 export type ProviderDraft = Omit<Provider, "id" | "rating" | "reviewCount" | "color">;
